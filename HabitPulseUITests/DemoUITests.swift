@@ -118,9 +118,9 @@ final class DemoUITests: XCTestCase {
 
     private func addHabits() {
         let habits = [
-            (title: "Drink water", emoji: "💧", extraTaps: 7),
-            (title: "Morning run", emoji: "🏃", extraTaps: 0),
-            (title: "Read 20 pages", emoji: "📚", extraTaps: 0)
+            (title: "Drink water",   emoji: "💧", colour: "Ocean",  extraTaps: 7),
+            (title: "Morning run",   emoji: "🏃", colour: "Sunset", extraTaps: 0),
+            (title: "Read 20 pages", emoji: "📚", colour: "Grape",  extraTaps: 0)
         ]
 
         for habit in habits {
@@ -128,6 +128,11 @@ final class DemoUITests: XCTestCase {
 
             let field = app.textFields["What do you want to do?"]
             type(habit.title, into: field)
+            // Dismiss the keyboard so the colour picker and preview ring
+            // are actually visible in the recording.
+            field.typeText("\n")
+            beat(0.6)
+            tap(app.buttons[habit.colour], timeout: 3, pause: 0.7)
             tap(app.buttons[habit.emoji], timeout: 3, pause: 0.7)
 
             // Nudge the daily target up so the ring shows partial progress.
@@ -170,7 +175,8 @@ final class DemoUITests: XCTestCase {
     private func showHabitHistory() {
         let firstRow = app.tables.cells.element(boundBy: 0)
         guard tap(firstRow, pause: 2.4) else { return }
-        beat(2.2)   // let the heat-map and stat tiles register
+        beat(4.5)   // hold on the heat-map and stat tiles - this is the
+                    // screen that shows the history actually working
         tap(app.navigationBars.buttons.element(boundBy: 0), pause: 1.4)
     }
 
@@ -194,8 +200,9 @@ final class DemoUITests: XCTestCase {
         tap(app.alerts.buttons["Done"], timeout: 5, pause: 1.6)
 
         // Open the challenge to show the live leaderboard.
-        tap(app.tables.cells.element(boundBy: 0), pause: 3.0)
-        beat(2.0)
+        // The live leaderboard is the centrepiece - hold it.
+        tap(app.tables.cells.element(boundBy: 0), pause: 3.5)
+        beat(4.5)
         tap(app.navigationBars.buttons.element(boundBy: 0), pause: 1.2)
     }
 

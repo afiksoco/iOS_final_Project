@@ -54,6 +54,15 @@ jobs:
         run: |
           xcrun simctl boot "${{ steps.sim.outputs.name }}" || true
           xcrun simctl bootstatus "${{ steps.sim.outputs.name }}" -b
+          # Silence the first-run keyboard tutorials - they float over the
+          # app and cover whatever is behind them.
+          for d in com.apple.Preferences com.apple.keyboard.preferences; do
+            xcrun simctl spawn "${{ steps.sim.outputs.name }}" defaults write $d DidShowContinuousPathIntroduction -bool true 2>/dev/null || true
+            xcrun simctl spawn "${{ steps.sim.outputs.name }}" defaults write $d DidShowGestureKeyboardIntroduction -bool true 2>/dev/null || true
+            xcrun simctl spawn "${{ steps.sim.outputs.name }}" defaults write $d KeyboardDidShowProductivityTutorial -bool true 2>/dev/null || true
+          done
+          xcrun simctl spawn "${{ steps.sim.outputs.name }}" defaults write com.apple.Preferences KeyboardAutocorrection -bool false 2>/dev/null || true
+          xcrun simctl spawn "${{ steps.sim.outputs.name }}" defaults write com.apple.Preferences KeyboardPrediction -bool false 2>/dev/null || true
           xcrun simctl status_bar "${{ steps.sim.outputs.name }}" override \
             --time "9:41" --batteryState charged --batteryLevel 100 \
             --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 || true
@@ -117,7 +126,7 @@ jobs:
               ffmpeg -y -i "$RAW" -c:v libx264 -preset slow -crf 24 \
                      -pix_fmt yuv420p -movflags +faststart docs/demo.mp4 2>&1 | tail -3
             elif command -v avconvert >/dev/null 2>&1; then
-              avconvert --preset PresetHighestQuality --source "$RAW" \
+              avconvert --preset PresetHighQuality --source "$RAW" \
                         --output docs/demo.mp4 --replace 2>&1 | tail -3 || true
             fi
             # simctl records H.264 in an ISO-BMFF container, so if neither
@@ -131,10 +140,10 @@ jobs:
           # --- frames: a dozen evenly spaced stills, downscaled ---
           COUNT=$(ls shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           if [ "$COUNT" -gt 0 ]; then
-            STEP=$(( COUNT / 14 )); [ "$STEP" -lt 1 ] && STEP=1
+            STEP=$(( COUNT / 24 )); [ "$STEP" -lt 1 ] && STEP=1
             i=0; n=0
             for f in $(ls shots/*.png); do
-              if [ $(( i % STEP )) -eq 0 ] && [ "$n" -lt 14 ]; then
+              if [ $(( i % STEP )) -eq 0 ] && [ "$n" -lt 24 ]; then
                 sips -Z 620 "$f" --out "docs/frames/$(printf 'frame-%02d' $n).png" >/dev/null 2>&1 && n=$((n+1))
               fi
               i=$((i+1))
