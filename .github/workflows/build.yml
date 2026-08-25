@@ -1,0 +1,114 @@
+name: Build
+
+# Compiles the app on a GitHub-hosted macOS runner, which comes with Xcode
+# preinstalled. That means the project can be verified without a local Mac —
+# and the resulting diagnostics are committed back as ci/BUILD_REPORT.md so
+# they can be read straight from the repo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project HabitPulse.xcodeproj \
+            -scheme HabitPulse \
+            2>&1 | tail -30
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project HabitPulse.xcodeproj \
+            -scheme HabitPulse \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee /tmp/build.log
+
+      - name: Write build report
+        if: always()
+        run: |
+          mkdir -p ci
+          # Strip the runner's absolute path so the report reads like local paths.
+          STRIP='s|/Users/runner/work/iOS_final_Project/iOS_final_Project/||g'
+          {
+            echo "# Build report"
+            echo
+            echo "- commit: \`${GITHUB_SHA:0:7}\`"
+            echo "- xcode: \`$(xcodebuild -version | head -1)\`"
+            echo "- outcome: **${{ steps.build.outcome }}**"
+            echo
+            if grep -qE ": error:" /tmp/build.log; then
+              COUNT=$(grep -cE ": error:" /tmp/build.log)
+              echo "## Errors ($COUNT)"
+              echo
+              echo '```'
+              grep -E ": error:" /tmp/build.log | sed "$STRIP" | sort -u | head -120
+              echo '```'
+            else
+              echo "## Errors"
+              echo
+              echo "None. 🎉"
+            fi
+            echo
+            WCOUNT=$(grep -cE ": warning:" /tmp/build.log || true)
+            echo "## Warnings (${WCOUNT:-0}, first 50 unique)"
+            echo
+            echo '```'
+            grep -E ": warning:" /tmp/build.log | sed "$STRIP" | sort -u | head -50
+            echo '```'
+            echo
+            echo "## Verdict"
+            echo
+            echo '```'
+            grep -E "^\*\* BUILD (SUCCEEDED|FAILED) \*\*" /tmp/build.log | tail -1 || tail -25 /tmp/build.log | sed "$STRIP"
+            echo '```'
+          } > ci/BUILD_REPORT.md
+          cat ci/BUILD_REPORT.md
+
+      - name: Commit the report
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci/BUILD_REPORT.md
+          if git diff --staged --quiet; then
+            echo "report unchanged"
+          else
+            # [skip ci] stops this commit from triggering another build.
+            git commit -m "ci: build report for ${GITHUB_SHA:0:7} [skip ci]"
+            git pull --rebase --autostash origin main
+            git push
+          fi
+
+      - name: Surface failure
+        if: steps.build.outcome != 'success'
+        run: |
+          echo "Build failed — see ci/BUILD_REPORT.md"
+          exit 1
