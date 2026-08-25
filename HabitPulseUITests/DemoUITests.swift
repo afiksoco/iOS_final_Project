@@ -51,12 +51,46 @@ final class DemoUITests: XCTestCase {
         beat(0.8)
     }
 
+    /// Firebase can surface a "Could not sign in" alert - most often on a
+    /// fresh simulator where the keychain is not ready on the first attempt.
+    /// Retry once, then dismiss, so a transient failure does not cost the
+    /// entire walkthrough.
+    private func clearSignInAlertIfPresent(retries: Int = 3) {
+        for attempt in 0..<retries {
+            let alert = app.alerts["Could not sign in"]
+            guard alert.waitForExistence(timeout: attempt == 0 ? 6 : 3) else { return }
+
+            if attempt < retries - 1, alert.buttons["Retry"].exists {
+                alert.buttons["Retry"].tap()
+                beat(3.5)   // give sign-in time to come back
+            } else {
+                if alert.buttons["Not now"].exists { alert.buttons["Not now"].tap() }
+                beat(1.0)
+                return
+            }
+        }
+    }
+
+    /// True once the app has a signed-in session, which is what makes the
+    /// onboarding screen (or a working Today screen) appear.
+    private func waitForSession(timeout: TimeInterval = 25) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            clearSignInAlertIfPresent()
+            if app.textFields["Your name"].exists { return }
+            if app.navigationBars.buttons["Add"].exists { return }
+            beat(1.0)
+        }
+    }
+
     // MARK: The walkthrough
 
     func testDemoWalkthrough() throws {
-        beat(2.5)
+        beat(3.0)
+        waitForSession()
 
         onboardIfNeeded()
+        clearSignInAlertIfPresent()
         addHabits()
         logCompletions()
         showHabitHistory()
