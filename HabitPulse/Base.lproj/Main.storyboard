@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22685" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="TAB-01-root">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Root Tab Bar Controller-->
+        <scene sceneID="SCN-01-tab">
+            <objects>
+                <tabBarController storyboardIdentifier="RootTabBarController" id="TAB-01-root" customClass="RootTabBarController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="TABBAR-01-root">
+                        <rect key="frame" x="0.0" y="803" width="393" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="NAV-01-today" kind="relationship" relationship="viewControllers" id="SEG-01-tab"/>
+                        <segue destination="NAV-02-chal" kind="relationship" relationship="viewControllers" id="SEG-02-tab"/>
+                        <segue destination="NAV-03-prof" kind="relationship" relationship="viewControllers" id="SEG-03-tab"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-01-tab" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="120" y="400"/>
+        </scene>
+        <!--Today Navigation Controller-->
+        <scene sceneID="SCN-02-navtoday">
+            <objects>
+                <navigationController id="NAV-01-today" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="BAR-01-today">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="VC-01-today" kind="relationship" relationship="rootViewController" id="SEG-04-navtoday"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-02-navtoday" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="600" y="130"/>
+        </scene>
+        <!--Today View Controller-->
+        <scene sceneID="SCN-03-today">
+            <objects>
+                <viewController storyboardIdentifier="TodayViewController" id="VC-01-today" customClass="TodayViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-01-today">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-01-today"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ITEM-01-today"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-03-today" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1080" y="130"/>
+        </scene>
+        <!--Challenges Navigation Controller-->
+        <scene sceneID="SCN-04-navchal">
+            <objects>
+                <navigationController id="NAV-02-chal" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="BAR-02-chal">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="VC-02-chal" kind="relationship" relationship="rootViewController" id="SEG-05-navchal"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-04-navchal" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="600" y="640"/>
+        </scene>
+        <!--Challenges View Controller-->
+        <scene sceneID="SCN-05-chal">
+            <objects>
+                <viewController storyboardIdentifier="ChallengesViewController" id="VC-02-chal" customClass="ChallengesViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-02-chal">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-02-chal"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ITEM-02-chal"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-05-chal" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1080" y="640"/>
+        </scene>
+        <!--Profile Navigation Controller-->
+        <scene sceneID="SCN-06-navprof">
+            <objects>
+                <navigationController id="NAV-03-prof" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="BAR-03-prof">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="VC-03-prof" kind="relationship" relationship="rootViewController" id="SEG-06-navprof"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-06-navprof" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="600" y="1150"/>
+        </scene>
+        <!--Profile View Controller-->
+        <scene sceneID="SCN-07-prof">
+            <objects>
+                <viewController storyboardIdentifier="ProfileViewController" id="VC-03-prof" customClass="ProfileViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-03-prof">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-03-prof"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ITEM-03-prof"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-07-prof" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1080" y="1150"/>
+        </scene>
+        <!--Habit Detail View Controller-->
+        <scene sceneID="SCN-08-habitdetail">
+            <objects>
+                <viewController storyboardIdentifier="HabitDetailViewController" id="VC-04-habitdetail" customClass="HabitDetailViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-04-habitdetail">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-04-habitdetail"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ITEM-04-habitdetail"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-08-habitdetail" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1560" y="130"/>
+        </scene>
+        <!--Challenge Detail View Controller-->
+        <scene sceneID="SCN-09-chaldetail">
+            <objects>
+                <viewController storyboardIdentifier="ChallengeDetailViewController" id="VC-05-chaldetail" customClass="ChallengeDetailViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-05-chaldetail">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-05-chaldetail"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="ITEM-05-chaldetail"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-09-chaldetail" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1560" y="640"/>
+        </scene>
+        <!--Onboarding View Controller-->
+        <scene sceneID="SCN-10-onboarding">
+            <objects>
+                <viewController storyboardIdentifier="OnboardingViewController" id="VC-06-onboarding" customClass="OnboardingViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-06-onboarding">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-06-onboarding"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-10-onboarding" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1560" y="1150"/>
+        </scene>
+        <!--Setup View Controller-->
+        <scene sceneID="SCN-11-setup">
+            <objects>
+                <viewController storyboardIdentifier="SetupViewController" id="VC-07-setup" customClass="SetupViewController" customModule="HabitPulse" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VIEW-07-setup">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="SAFE-07-setup"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FR-11-setup" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2040" y="1150"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

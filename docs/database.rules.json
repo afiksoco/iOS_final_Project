@@ -1,0 +1,50 @@
+// Realtime Database security rules for HabitPulse.
+// Paste into Firebase console -> Realtime Database -> Rules -> Publish.
+//
+// The pattern throughout: anyone signed in may READ the shared live state,
+// but a player may only WRITE the node that represents themselves. That is
+// what makes it safe for each client to compute and publish its own score.
+{
+  "rules": {
+    // Nothing is readable or writable unless a rule below opens it.
+    ".read": false,
+    ".write": false,
+
+    // Who is online. Written by PresenceService, including the onDisconnect
+    // handler the server runs when a client drops off.
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['online', 'displayName'])"
+      }
+    },
+
+    // The live leaderboards. Everyone in a challenge reads the whole board;
+    // each player writes only their own row.
+    "standings": {
+      "$challengeId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid == $uid",
+          ".validate": "newData.hasChildren(['displayName', 'points'])",
+          "points":     { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "todayCount": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "streak":     { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        }
+      }
+    },
+
+    // Transient reactions. Anyone signed in may post one, and they are only
+    // ever read as they arrive.
+    "cheers": {
+      "$challengeId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$cheerId": {
+          ".validate": "newData.hasChildren(['fromName', 'emoji', 'at'])"
+        }
+      }
+    }
+  }
+}

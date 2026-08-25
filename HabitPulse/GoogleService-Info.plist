@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDxGDqv67nEdv8AXZ41U-xQ1BBGIDtlzSU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>538482245053</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.afik.HabitPulse</string>
+	<key>PROJECT_ID</key>
+	<string>ios-final-13829</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ios-final-13829.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:538482245053:ios:902b226845c95d5d3e66d4</string>
+	<key>DATABASE_URL</key>
+	<string>https://ios-final-13829-default-rtdb.europe-west1.firebasedatabase.app</string>
+</dict>
+</plist>

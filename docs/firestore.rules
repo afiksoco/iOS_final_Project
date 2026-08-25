@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// Cloud Firestore security rules for HabitPulse.
+//
+// The guiding rule: a player owns their own habit data outright, and nobody
+// else can read it. Challenges are shared, so they are readable by any signed-
+// in user, but only in ways that cannot be used to vandalise someone else's.
+//
+// Paste this into Firebase console → Firestore Database → Rules → Publish.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- A player's own data -------------------------------------------
+    // Profile, habits, logs and day rollups: private, and only the owner
+    // may touch them. `{document=**}` covers every sub-collection.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // ---- Challenges ------------------------------------------------------
+    match /challenges/{challengeId} {
+
+      // Any signed-in player may read a challenge — this is also what lets
+      // someone look one up by its join code before they are a member.
+      allow read: if request.auth != null;
+
+      // The creator must put themselves down as the owner and first member,
+      // so nobody can create a challenge in someone else's name.
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.auth.uid in request.resource.data.memberUids;
+
+      // Updates are limited to two legitimate cases:
+      //   * the owner editing their own challenge, or
+      //   * anybody joining or leaving, which may only change the membership
+      //     fields and must only add or remove *themselves*.
+      allow update: if request.auth != null
+                    && (
+                      resource.data.ownerUid == request.auth.uid
+                      || (
+                        request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasOnly(['memberUids', 'memberNames'])
+                        && (
+                          // joining
+                          (!(request.auth.uid in resource.data.memberUids)
+                            && request.auth.uid in request.resource.data.memberUids)
+                          // leaving
+                          || (request.auth.uid in resource.data.memberUids
+                            && !(request.auth.uid in request.resource.data.memberUids))
+                        )
+                      )
+                    );
+
+      // Only the owner can delete a challenge.
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+  }
+}
