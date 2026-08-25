@@ -1,0 +1,129 @@
+name: Demo video
+
+# Records a walkthrough of the app on a GitHub-hosted macOS runner.
+#
+# `xcrun simctl io recordVideo` captures the simulator's screen while an
+# XCUITest drives the app, so the result is genuine footage of the real app
+# talking to the real Firebase project - not a mockup. The finished file is
+# uploaded as a build artifact and committed to docs/.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'HabitPulseUITests/**'
+      - '.github/workflows/demo-video.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: xcodebuild -version
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          # Choose a concrete iPhone rather than "latest", so the recording
+          # always has the same aspect ratio.
+          NAME=$(xcrun simctl list devices available \
+                 | grep -oE 'iPhone 1[5-9][^(]*' | head -1 | sed 's/ *$//')
+          [ -z "$NAME" ] && NAME=$(xcrun simctl list devices available | grep -oE 'iPhone[^(]*' | head -1 | sed 's/ *$//')
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Using simulator: $NAME"
+
+      - name: Boot the simulator
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.name }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.name }}" -b
+          # Fixed status bar, so the clock doesn't jump around mid-recording.
+          xcrun simctl status_bar "${{ steps.sim.outputs.name }}" override \
+            --time "9:41" --batteryState charged --batteryLevel 100 \
+            --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 || true
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project HabitPulse.xcodeproj \
+            -scheme HabitPulse \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tail -40
+
+      - name: Record while the UI test drives the app
+        id: record
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          # Start recording in the background, then run the walkthrough.
+          xcrun simctl io "${{ steps.sim.outputs.name }}" recordVideo \
+            --codec h264 --force artifacts/demo-raw.mov &
+          REC_PID=$!
+          sleep 3
+
+          xcodebuild test-without-building \
+            -project HabitPulse.xcodeproj \
+            -scheme HabitPulse \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -only-testing:HabitPulseUITests/DemoUITests/testDemoWalkthrough \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tail -60 || echo "walkthrough reported a failure - keeping the footage anyway"
+
+          sleep 2
+          # SIGINT is what tells simctl to finalise the file cleanly.
+          kill -INT $REC_PID 2>/dev/null || true
+          wait $REC_PID 2>/dev/null || true
+          sleep 3
+          ls -la artifacts/
+
+      - name: Transcode to mp4
+        if: always()
+        run: |
+          if [ ! -s artifacts/demo-raw.mov ]; then
+            echo "no footage captured"; exit 0
+          fi
+          mkdir -p docs
+          # H.264 in an .mp4 container plays everywhere, including in a
+          # browser and in Keynote.
+          ffmpeg -y -i artifacts/demo-raw.mov \
+            -vf "scale=trunc(iw/3)*2:trunc(ih/3)*2" \
+            -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -movflags +faststart \
+            docs/demo.mp4 2>&1 | tail -5
+          ls -lh docs/demo.mp4
+
+      - name: Upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-video
+          path: |
+            docs/demo.mp4
+            artifacts/demo-raw.mov
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit the video
+        if: always()
+        run: |
+          if [ ! -s docs/demo.mp4 ]; then echo "nothing to commit"; exit 0; fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/demo.mp4
+          if git diff --staged --quiet; then
+            echo "video unchanged"
+          else
+            git commit -m "ci: record demo walkthrough [skip ci]"
+            git pull --rebase --autostash origin main
+            git push
+          fi
