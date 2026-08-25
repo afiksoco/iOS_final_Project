@@ -1,6 +1,6 @@
 # Demo recording report
 
-- commit: `b752573`
+- commit: `a3d9f87`
 - simulator: `iPhone 17 Pro`
 - walkthrough step: **success**
 - ffmpeg: `MISSING`
@@ -8,9 +8,9 @@
 
 ## Output
 ```
--rw-r--r--  1 runner  staff    24M Aug 25 18:06 docs/demo.mp4
+-rw-r--r--  1 runner  staff    24M Aug 25 18:30 docs/demo.mp4
 no video produced
-raw footage: 28M
-screenshots sampled: 92
+raw footage: 34M
+screenshots sampled: 90
 frames committed:    24
 ```
