@@ -83,6 +83,18 @@ final class DemoUITests: XCTestCase {
         }
     }
 
+    /// Dismiss whatever alert happens to be up. A modal left on screen
+    /// makes every later tap a no-op, which would quietly truncate the
+    /// recording rather than fail it.
+    private func dismissAnyAlert() {
+        let alert = app.alerts.firstMatch
+        guard alert.exists else { return }
+        for label in ["Done", "OK", "Cancel", "Not now"] {
+            if alert.buttons[label].exists { alert.buttons[label].tap(); beat(1.0); return }
+        }
+        if alert.buttons.count > 0 { alert.buttons.element(boundBy: 0).tap(); beat(1.0) }
+    }
+
     // MARK: The walkthrough
 
     func testDemoWalkthrough() throws {
@@ -94,7 +106,9 @@ final class DemoUITests: XCTestCase {
         addHabits()
         logCompletions()
         showHabitHistory()
+        dismissAnyAlert()
         showChallenges()
+        dismissAnyAlert()
         showProfileAndDarkMode()
         returnToTodayInDarkMode()
 

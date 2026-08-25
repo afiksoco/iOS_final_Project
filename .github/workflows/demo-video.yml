@@ -140,7 +140,7 @@ jobs:
           # --- frames: a dozen evenly spaced stills, downscaled ---
           COUNT=$(ls shots/*.png 2>/dev/null | wc -l | tr -d ' ')
           if [ "$COUNT" -gt 0 ]; then
-            STEP=$(( COUNT / 24 )); [ "$STEP" -lt 1 ] && STEP=1
+            STEP=$(( (COUNT + 23) / 24 )); [ "$STEP" -lt 1 ] && STEP=1
             i=0; n=0
             for f in $(ls shots/*.png); do
               if [ $(( i % STEP )) -eq 0 ] && [ "$n" -lt 24 ]; then
